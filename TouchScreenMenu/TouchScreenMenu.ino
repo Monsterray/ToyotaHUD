@@ -12,6 +12,8 @@
 #include <TFT.h>
 #include <cstddef.h>
 
+bool const debug = true;
+
 double gasLevel = 0;
 double oilPressure1 = 0;
 double oilPressure2 = 0;
@@ -70,25 +72,27 @@ TouchScreenMenuItem emptyItems[] = {
 unsigned int black = TSC.createColor(0, 0, 0);
 unsigned int white = TSC.createColor(255, 255, 255);
 unsigned int orange = TSC.createColor(206, 114, 33);
+unsigned int darkGreen = TSC.createColor(55, 165, 0);
 
 // Create the various menus setting the (items, font size, spacing, padding, justification, titles)
-TouchScreenMenu subMenu = TouchScreenMenu(subMenuItems, 2, 10, 5, CENTERJ, "Sub Menu");
-TouchScreenMenu mainMenu = TouchScreenMenu(mainMenuItems, 2, 10, 10, CENTERJ, "Main Menu");
-TouchScreenMenu timerScreen = TouchScreenMenu(timerItems, 2, 10, 10, CENTERJ, "Timer Screen");
-TouchScreenMenu dimmerScreen = TouchScreenMenu(emptyItems, 2, 10, 10, CENTERJ, "Dimmer Screen");
-TouchScreenMenu wipperScreen = TouchScreenMenu(emptyItems, 2, 10, 10, CENTERJ, "Wiper Menu");
-TouchScreenMenu TestScreen = TouchScreenMenu(emptyItems, 2, 10, 10, CENTERJ);
+TouchScreenMenu mainMenu =     TouchScreenMenu(mainMenuItems, 2, 10, 10, CENTERJ, "Main Menu");
+TouchScreenMenu subMenu =      TouchScreenMenu(subMenuItems,  2, 10, 5, CENTERJ, "Sub Menu");
+TouchScreenMenu dashboard =    TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "");
+TouchScreenMenu timerScreen =  TouchScreenMenu(timerItems,    2, 10, 10, CENTERJ, "Timer Screen");
+TouchScreenMenu dimmerScreen = TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "Dimmer Screen");
+TouchScreenMenu wipperScreen = TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "Wiper Menu");
+TouchScreenMenu TestScreen =   TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ);
 
 // Keep track of which menu is the currently active one
 TouchScreenMenu *curMenu = &mainMenu;
 
 TouchScreenArea goBack = TouchScreenButton("<- Back", white, black, 50, TSC.getScreenHeight() - 50, 2, 10);
 
-// These are for the wiper menu
-TouchScreenArrowButton courseDown = TouchScreenArrowButton("courseDown", black, orange, 10, TSC.getScreenHeight() - 180 , 30, 30, LEFT);
-TouchScreenArrowButton courseUp = TouchScreenArrowButton("courseUp", black, orange, 10, TSC.getScreenHeight() - 180 , 30, 30, RIGHT);
-TouchScreenArrowButton fineDown = TouchScreenArrowButton("fineDown", black, orange, 10, TSC.getScreenHeight() - 180 , 30, 30, LEFT);
-TouchScreenArrowButton fineUp = TouchScreenArrowButton("fineUp", black, orange, 10, TSC.getScreenHeight() - 180 , 30, 30, RIGHT);
+// These are for the wiper menu TouchScreenArrowButton(char *text, unsigned int foreColor, unsigned int backColor, unsigned int x, unsigned int y, unsigned int w, unsigned int h, Direction dir)
+TouchScreenArrowButton courseDown = TouchScreenArrowButton("courseDown", black, orange, 10, 80 , 30, 30, LEFT);
+TouchScreenArrowButton courseUp =   TouchScreenArrowButton("courseUp",   black, orange, TSC.getScreenWidth() - 40, 80 , 30, 30, RIGHT);
+TouchScreenArrowButton fineDown =   TouchScreenArrowButton("fineDown",   black, orange, 10, 180 , 30, 30, LEFT);
+TouchScreenArrowButton fineUp =     TouchScreenArrowButton("fineUp",     black, orange, TSC.getScreenWidth() - 40, 180 , 30, 30, RIGHT);
 
 // TouchScreenSlider(text, foreColor, backColor, x, y, w, h, Layout layout);
 TouchScreenSlider lightBright = TouchScreenSlider("lightBright",TSC.createColor(200, 200, 200), TSC.createColor(50, 50, 255), 5, TSC.getScreenHeight() - 110, 150, 40, HORIZONTAL);
@@ -99,8 +103,12 @@ float counter = 0;
 // Setup all variables that need setting after the arduino starts up
 void setup(void) {
 	Serial.begin(9600);
+	Serial.print("Screen Height: ");
+	Serial.println(TSC.getScreenHeight());
+	Serial.print("Screen Width: ");
+	Serial.println(TSC.getScreenWidth());
 	Serial.println("Starting...");
-	TSC.setBackColor(TSC.createColor(255, 255, 0)); // change the default background color
+	TSC.setBackColor(darkGreen); // change the default background color
 	TSC.init(); // make sure everything gets initialized
 	Serial.println("TSC Initialized!");
 	
@@ -148,18 +156,6 @@ void checkButtons(){
 		analogWrite(A8, brightness*255);
 		
 	}
-	// else if(backFromBtns.process()){ // return from the buttons screen
-		// Serial.println("backFromBtns");
-        // curMenu = &mainMenu;
-        // TSC.clearScreen();
-        // curMenu->draw();
-  // }
-  // else if(backFromLbls.process()){ // return from the labels screen
-		// Serial.println("backFromLbls");
-        // curMenu = &mainMenu;
-        // TSC.clearScreen();
-        // curMenu->draw();
-  // }
 }
 
 // Check to see if any menu item was pressed and do something
@@ -187,6 +183,16 @@ void checkMenuSelection(TouchScreenMenuItem *item) {
 			goBack.draw();
 			
 			curMenu->draw();
+			handled = true;
+		}
+		else if(!strcmp(item->getText(),"Dashboard")){
+			curMenu = &dashboard;
+			TSC.clearScreen();
+			//Do dashboard stuff here.
+			
+			
+			curMenu->draw();
+			goBack.draw();
 			handled = true;
 		}
 		else if(!strcmp(item->getText(),"-> Sub Menus")){
