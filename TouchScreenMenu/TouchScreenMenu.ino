@@ -14,6 +14,11 @@
 
 bool const debug = true;
 
+unsigned int black = TSC.createColor(0, 0, 0);
+unsigned int white = TSC.createColor(255, 255, 255);
+unsigned int orange = TSC.createColor(206, 114, 33);
+unsigned int darkGreen = TSC.createColor(55, 165, 0);
+
 double gasLevel = 0;
 double oilPressure1 = 0;
 double oilPressure2 = 0;
@@ -32,8 +37,8 @@ bool highBeam = false;
 bool charge = false;
 bool parkingBreak = false;
 
-double intermitent = 0;	// Need to find a good default
-double lowFanSpeed = 0;	// Need to figure out how the fan speeds work and pick a speed for low
+int intermitent = 10;	// Need to find a good default
+int lowFanSpeed = 0;	// Need to figure out how the fan speeds work and pick a speed for low
 
 // create the array of items for the main menu
 TouchScreenMenuItem mainMenuItems[] = {
@@ -69,15 +74,10 @@ TouchScreenMenuItem emptyItems[] = {
 	TouchScreenMenuItem("ENDOFMENU")
 };
 
-unsigned int black = TSC.createColor(0, 0, 0);
-unsigned int white = TSC.createColor(255, 255, 255);
-unsigned int orange = TSC.createColor(206, 114, 33);
-unsigned int darkGreen = TSC.createColor(55, 165, 0);
-
 // Create the various menus setting the (items, font size, spacing, padding, justification, titles)
 TouchScreenMenu mainMenu =     TouchScreenMenu(mainMenuItems, 2, 10, 10, CENTERJ, "Main Menu");
 TouchScreenMenu subMenu =      TouchScreenMenu(subMenuItems,  2, 10, 5, CENTERJ, "Sub Menu");
-TouchScreenMenu dashboard =    TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "");
+TouchScreenMenu dashboard =    TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ);
 TouchScreenMenu timerScreen =  TouchScreenMenu(timerItems,    2, 10, 10, CENTERJ, "Timer Screen");
 TouchScreenMenu dimmerScreen = TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "Dimmer Screen");
 TouchScreenMenu wipperScreen = TouchScreenMenu(emptyItems,    2, 10, 10, CENTERJ, "Wiper Menu");
@@ -175,11 +175,24 @@ void checkMenuSelection(TouchScreenMenuItem *item) {
 		else if(!strcmp(item->getText(),"Wiper Menu")){
 			curMenu = &wipperScreen;
 			TSC.clearScreen();
+			char wiperChar[4];
+			
+			// char *  dtostrf( double __val, signed char __width, unsigned char __prec, char * __s)
+			// char *  itoa ( int value, char * str, int base );
+
+			itoa (intermitent, wiperChar, 10);
+			
+			Serial.print("char: ");
+			Serial.println(wiperChar);
 			
 			courseDown.draw();
 			courseUp.draw();
+			Tft.drawRectangle(50, 80, TSC.getScreenWidth() - 100, 30, black);
+			Tft.drawString(wiperChar, 50 + (100-(sizeof(intermitent)*3))/2, 84, 3, black);
 			fineDown.draw();
 			fineUp.draw();
+			Tft.drawRectangle(50, 180, TSC.getScreenWidth() - 100, 30, black);
+			
 			goBack.draw();
 			
 			curMenu->draw();
