@@ -146,7 +146,7 @@ void checkButtons(){
         TSC.clearScreen();
         curMenu->draw();
 	}
-	else if(curMenu == &dimmerScreen && lightBright.process()){ // return from the graphics function screen
+	else if(curMenu == &dimmerScreen && lightBright.process()){ // Process light contol slider
 		// Serial.println("lightBright");
 		Serial.print("Brightnes slider Value");
 		float brightness = lightBright.getValue();
@@ -155,6 +155,18 @@ void checkButtons(){
 		Serial.println(brightness*255);
 		analogWrite(A8, brightness*255);
 		
+	}
+	else if(curMenu == &wipperScreen && courseDown.process()){ // Process course down
+		intermitent -= 10;
+	}
+	else if(curMenu == &wipperScreen && courseUp.process()){ // Process course up
+		intermitent += 10;
+	}
+	else if(curMenu == &wipperScreen && fineDown.process()){ // Process fine down
+		intermitent -= 2;
+	}
+	else if(curMenu == &wipperScreen && fineUp.process()){ // Process fine up
+		intermitent += 2;
 	}
 }
 
